@@ -145,6 +145,24 @@ consteval bool is_tuple_like_well_formed() {
   return false;
 }
 
+#if defined(CT_BENCHMARK_ENABLE_NEW_IMPLEMENTATION)
+template <template <class...> class T, class TL, class Is, class... Args>
+struct instantiated_traits;
+template <template <class...> class T, class TL, std::size_t... Is,
+          class... Args>
+struct instantiated_traits<T, TL, std::index_sequence<Is...>, Args...>
+    : std::type_identity<T<Args..., std::tuple_element_t<Is, TL>...>> {};
+
+template <template <class...> class T, class TL, class... Args>
+struct instantiated_traits_helper : instantiated_traits<
+    T, TL, std::make_index_sequence<std::tuple_size_v<TL>>, Args...> {};
+template <template <class...> class T, class... Ts, class... Args>
+struct instantiated_traits_helper<T, std::tuple<Ts...>, Args...> 
+    : std::type_identity<T<Args..., Ts...>> {};
+
+template <template <class...> class T, class TL, class... Args>
+using instantiated_t = typename instantiated_traits_helper<T, TL, Args...>::type;
+#else
 template <template <class...> class T, class TL, class Is, class... Args>
 struct instantiated_traits;
 template <template <class...> class T, class TL, std::size_t... Is,
@@ -154,6 +172,7 @@ struct instantiated_traits<T, TL, std::index_sequence<Is...>, Args...>
 template <template <class...> class T, class TL, class... Args>
 using instantiated_t = typename instantiated_traits<
     T, TL, std::make_index_sequence<std::tuple_size_v<TL>>, Args...>::type;
+#endif
 
 enum class qualifier_type { lv, const_lv, rv, const_rv };
 template <class T, qualifier_type Q>

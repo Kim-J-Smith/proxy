@@ -1,0 +1,38 @@
+name: "Compile-Time Benchmark"
+
+on:
+  push:
+
+jobs:
+  # Ubuntu check
+  benchmark-on-ubuntu:
+    if: github.repository_owner == 'Kim-J-Smith'
+    runs-on: ubuntu-latest
+
+    steps:
+      # Get the code
+      - name: Checkout code
+        uses: actions/checkout@v6
+
+      # Install cmake and compilers
+      - name: Install compilers
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y clang
+          sudo apt-get install python3
+
+      # Run tests
+      - name: Run tests with C++
+        working-directory: benchmarks
+        run: |
+          cd ./compile-time
+          chmod a+x ./run_benchmark.sh
+          ./run_benchmark.sh
+
+      # Output the report
+      - name: Save the benchmark result
+        uses: actions/upload-artifact@v4
+        with:
+          name: compile-time-bench-results
+          path: benchmarks/compile-time/benchmark_report.md
+          retention-days: 60
