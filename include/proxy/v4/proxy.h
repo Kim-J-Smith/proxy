@@ -151,7 +151,6 @@ template <template <class...> class T, class TL, std::size_t... Is,
           class... Args>
 struct instantiated_traits<T, TL, std::index_sequence<Is...>, Args...>
     : std::type_identity<T<Args..., std::tuple_element_t<Is, TL>...>> {};
-
 template <template <class...> class T, class TL, class... Args>
 struct instantiated_traits_helper
     : instantiated_traits<
@@ -159,7 +158,6 @@ struct instantiated_traits_helper
 template <template <class...> class T, class... Ts, class... Args>
 struct instantiated_traits_helper<T, std::tuple<Ts...>, Args...>
     : std::type_identity<T<Args..., Ts...>> {};
-
 template <template <class...> class T, class TL, class... Args>
 using instantiated_t =
     typename instantiated_traits_helper<T, TL, Args...>::type;
